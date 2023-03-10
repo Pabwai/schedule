@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,7 +40,7 @@ public class PullFileFTP implements Runnable {
     public static  void ftp() throws JSONException, IOException {
     	
     	JSONObject JSONObject = parseJSONFile(setSchedule);
-    	String fileSetting =  JSONObject.getString("fileSetting");
+    	String fileSetting =  JSONObject.getString("setFTP");
 		
 		JSONObject data = parseJSONFile(fileSetting);
 		
@@ -48,7 +49,7 @@ public class PullFileFTP implements Runnable {
 		port 	= data.getInt("ftpport");
 		server 	= data.getString("ftpserver");
 		
-		JSONArray ifiles = (JSONArray)data.get("localSucce");
+		JSONArray ifiles = (JSONArray)data.get("pathFileFTP");
 
 		 
 	   ftpClient = new FTPClient();
@@ -73,42 +74,57 @@ public class PullFileFTP implements Runnable {
                 	File[] files = file.listFiles();  
                 	
                 	for (File fileItem:files) {  
-                        System.out.println(fileItem.getAbsolutePath());  
+                          
                         Optional<String> filetyp = getExtensionByStringHandling(fileItem.getAbsolutePath());
-                        if(filetyp.get()!="txt") continue;
+
+                        if(!filetyp.get().toUpperCase().equals("TXT")) continue;
                         
+                       
                         
-                        InputStream inputStream = new FileInputStream(fileItem);
                         String[] sentences = fileItem.getName().split("\\_");
-                        String remoteFile = pathFile.getString("remoteFile");
-                        
-    					if(sentences.length==0) {
-    						remoteFile = remoteFile+"/"+"Achived";
+                        String remoteFile = "/"+pathFile.getString("remoteFile");
+    					if(sentences.length==1) {
+    						remoteFile = remoteFile+"/Achived";
     					}else if(sentences.length==2) {
-    						if(sentences[2].toUpperCase()=="SUCCESS.TXT"  || 
-    						   sentences[2].toUpperCase()=="TSUCCESS.TXT" ||
-    						   sentences[2].toUpperCase()=="LSUCCESS.TXT"   ) {
-    							remoteFile = remoteFile+"/"+"Achived";
+    						
+    						if(sentences[1].toUpperCase().equals("SUCCESS.TXT") || 
+    						   sentences[1].toUpperCase().equals("TSUCCESS.TXT") ||
+    						   sentences[1].toUpperCase().equals("LSUCCESS.TXT")   ) {
+    							remoteFile = remoteFile+"/Achived";
+    							
     						}else {
-    							remoteFile = remoteFile+"/"+"Error";
+    							remoteFile = remoteFile+"/Error";
     						}
     					}
+    					
     					boolean variPath = checkDirectoryExists(remoteFile);
-    					boolean done = false;
+    					
+    					
     					if(variPath) {
-    						done  = ftpClient.storeFile(remoteFile, inputStream);
+    						remoteFile = remoteFile+"/"+fileItem.getName();
+    						InputStream inputStream = new FileInputStream(fileItem.getAbsolutePath());
+    						OutputStream outputStream = ftpClient.storeFileStream(remoteFile);
+    						byte[] bytesIn = new byte[4096];
+    		                int bytesRead = -1;
+    		                while ((bytesRead = inputStream.read(bytesIn)) != -1) {
+    		                    outputStream.write(bytesIn, 0, bytesRead);
+    		                }
+    		                outputStream.close();
+    		                inputStream.close();
+    		                boolean success = ftpClient.completePendingCommand();
+    		                
+    		                if (success) {
+                                System.out.println(fileItem.getName() + " uploaded success");
+                            }else {
+                            	System.out.println(fileItem.getName() + " uploaded false");
+                            }
+    		                Thread.sleep(1000);
     					}else {
     						 System.out.println(remoteFile + "  directory does exist");
-    					}
-
-                        inputStream.close();
+    					}        
                         
-                        if (done) {
-                            System.out.println(fileItem.getName() + " uploaded success");
-                        }else {
-                        	System.out.println(fileItem.getName() + " uploaded false");
-                        }
                         
+                       
                     }
             		
             	}else {
@@ -120,7 +136,7 @@ public class PullFileFTP implements Runnable {
 
             ftpClient.logout();
             ftpClient.disconnect();
-        } catch (IOException ex) {
+        } catch (IOException | InterruptedException ex) {
         	log.debug("Error: " + ex.getMessage());
             System.out.println("Error: " + ex.getMessage());
             ex.printStackTrace();
@@ -160,7 +176,7 @@ public class PullFileFTP implements Runnable {
     
 	@Override
     public void run() {
-		System.out.println("PullFileFTP");
+		System.out.println("Upload");
 		try {
 			ftp();
 		} catch (JSONException | IOException e) {

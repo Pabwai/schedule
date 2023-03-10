@@ -20,10 +20,10 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 
 
-@Controller
+@Component
 public class SFTP implements Runnable{
 	
 	private static Logger log = LogManager.getLogger("loggers");
@@ -44,7 +44,7 @@ public class SFTP implements Runnable{
 		
 		JSONObject JSONObject = parseJSONFile(setSchedule);
 		
-    	String fileSetting =  JSONObject.getString("fileSetting");
+    	String fileSetting =  JSONObject.getString("setFTP");
 		
 		JSONObject data = parseJSONFile(fileSetting);
 		
@@ -168,6 +168,7 @@ public class SFTP implements Runnable{
 	@Override
     public void run() {
 		System.out.println("+-----------"+new Date()+"-----------+");
+		System.out.println("Download");
 		try {
 			ftp();
 		} catch (JSONException | IOException e) {

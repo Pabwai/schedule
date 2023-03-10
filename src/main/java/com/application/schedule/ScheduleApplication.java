@@ -1,5 +1,8 @@
 package com.application.schedule;
 
+import java.io.IOException;
+
+import org.json.JSONException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
@@ -14,7 +17,7 @@ import com.application.schedule.controller.ScheduleController;
 })
 public class ScheduleApplication  {
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws JSONException, IOException {
 		SpringApplication.run(ScheduleApplication.class, args);
 		System.out.println();
 		System.out.println("----------------------------------------------------");
