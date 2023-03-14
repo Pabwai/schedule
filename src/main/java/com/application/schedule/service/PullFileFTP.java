@@ -8,6 +8,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.commons.net.ftp.FTP;
@@ -32,10 +35,7 @@ public class PullFileFTP implements Runnable {
     static FTPClient ftpClient;
     
     static String setSchedule = "D:\\worksite\\schedule.json"; 
-    
-    static String fileSetting = "D:\\worksite\\worksite.json"; 
 
-	
 	
     public static  void ftp() throws JSONException, IOException {
     	
@@ -176,7 +176,7 @@ public class PullFileFTP implements Runnable {
     
 	@Override
     public void run() {
-		System.out.println("Upload");
+		System.out.println("Upload File"+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
 		try {
 			ftp();
 		} catch (JSONException | IOException e) {

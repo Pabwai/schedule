@@ -41,27 +41,22 @@ public class ScheduleController {
 			
 			Long delayTime;
 			Long delayTime2;
-		    final Long initialDelay = LocalDateTime.now().until(LocalDate.now().atTime(getHour, getMinut), ChronoUnit.MINUTES);
-		    final Long initialDelay2 = LocalDateTime.now().until(LocalDate.now().atTime(putHour, putMinut), ChronoUnit.MINUTES);
+		    final Long initialDelay = LocalDateTime.now().until(LocalDate.now().plusDays(1).atTime(getHour, getMinut), ChronoUnit.MINUTES);
+		    final Long initialDelay2 = LocalDateTime.now().until(LocalDate.now().plusDays(1).atTime(putHour, putMinut), ChronoUnit.MINUTES);
 		    //final Long initialDelay2 = LocalDateTime.now().until(LocalDate.now().plusDays(1).atTime(0, 24), ChronoUnit.MINUTES);
 
 	        if (initialDelay > TimeUnit.DAYS.toMinutes(1)) {
 	            delayTime = LocalDateTime.now().until(LocalDate.now().atTime(getHour, getMinut), ChronoUnit.MINUTES);
-	            
-	        } else {
-	            delayTime = initialDelay;
-	        }
-	        
-	        if (initialDelay2 > TimeUnit.DAYS.toMinutes(1)) {
 	            delayTime2 = LocalDateTime.now().until(LocalDate.now().atTime(putHour, putMinut), ChronoUnit.MINUTES);
 	            
 	        } else {
+	            delayTime = initialDelay;
 	            delayTime2 = initialDelay2;
 	        }
-	        
+
 	        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-	        scheduler.scheduleAtFixedRate(new SFTP(), delayTime, TimeUnit.SECONDS.toSeconds(1), TimeUnit.MINUTES);
-	        scheduler.scheduleAtFixedRate(new PullFileFTP(), delayTime2, TimeUnit.MINUTES.toMinutes(1), TimeUnit.MINUTES);
+	        scheduler.scheduleAtFixedRate(new SFTP(), delayTime,  TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+	        scheduler.scheduleAtFixedRate(new PullFileFTP(), delayTime2, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
 	        //scheduler.scheduleAtFixedRate(new ScheduleController(), initialDelay2, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
 			
 		}

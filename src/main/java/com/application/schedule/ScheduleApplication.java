@@ -22,7 +22,7 @@ public class ScheduleApplication  {
 		System.out.println();
 		System.out.println("----------------------------------------------------");
 		System.out.println("       START PROGRAM SFTP MOTOR POLICY ");
-		System.out.println("----------------------------------------------------");
+		System.out.println("----------------------------------------------------\n");
 		
 		ScheduleController.setSchedule();
 		

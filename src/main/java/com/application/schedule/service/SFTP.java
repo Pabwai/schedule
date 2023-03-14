@@ -10,7 +10,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -34,8 +36,7 @@ public class SFTP implements Runnable{
     static String pass = "34>zd/U!NtGSRn?6";
     
     static String setSchedule = "D:\\worksite\\schedule.json"; 
-    
-    static String fileSetting = "D:\\worksite\\worksite.json"; 
+   
     
     static FTPClient ftpClient;
 	
@@ -167,8 +168,7 @@ public class SFTP implements Runnable{
 
 	@Override
     public void run() {
-		System.out.println("+-----------"+new Date()+"-----------+");
-		System.out.println("Download");
+		System.out.println("Download File"+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
 		try {
 			ftp();
 		} catch (JSONException | IOException e) {
