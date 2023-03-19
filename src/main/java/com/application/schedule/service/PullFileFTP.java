@@ -176,7 +176,7 @@ public class PullFileFTP implements Runnable {
     
 	@Override
     public void run() {
-		System.out.println("Upload File"+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
+		System.out.println("Upload File: "+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
 		try {
 			ftp();
 		} catch (JSONException | IOException e) {

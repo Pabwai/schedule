@@ -36,7 +36,7 @@ public class SFTP implements Runnable{
     static String pass = "34>zd/U!NtGSRn?6";
     
     static String setSchedule = "D:\\worksite\\schedule.json"; 
-   
+    
     
     static FTPClient ftpClient;
 	
@@ -53,7 +53,7 @@ public class SFTP implements Runnable{
 		pass 	= data.getString("ftppass");
 		port 	= data.getInt("ftpport");
 		server 	= data.getString("ftpserver");
-		
+
 		JSONArray files = (JSONArray)data.get("pathFileFTP");
 
 		 
@@ -168,14 +168,21 @@ public class SFTP implements Runnable{
 
 	@Override
     public void run() {
-		System.out.println("Download File"+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
+		System.out.println();
+		System.out.println("Download File: "+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
 		try {
 			ftp();
+
+			JSONObject JSONObject = parseJSONFile(setSchedule);
+	    	String fileSetting =  JSONObject.getString("setFTP");
+			JSONObject data = parseJSONFile(fileSetting);
+			String setBat 	= data.getString("batch");
+			Runtime.getRuntime().exec("cmd /c start "+setBat);
 		} catch (JSONException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println();
+		
     }
 
 }

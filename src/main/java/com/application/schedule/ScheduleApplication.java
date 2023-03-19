@@ -17,13 +17,14 @@ import com.application.schedule.controller.ScheduleController;
 })
 public class ScheduleApplication  {
 	
+	
 	public static void main(String[] args) throws JSONException, IOException {
 		SpringApplication.run(ScheduleApplication.class, args);
 		System.out.println();
 		System.out.println("----------------------------------------------------");
 		System.out.println("       START PROGRAM SFTP MOTOR POLICY ");
-		System.out.println("----------------------------------------------------\n");
-		
+		System.out.println("----------------------------------------------------");
+
 		ScheduleController.setSchedule();
 		
 	}
