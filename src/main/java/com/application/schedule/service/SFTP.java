@@ -10,9 +10,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -26,21 +23,13 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class SFTP implements Runnable{
+public class SFTP {
 	
 	private static Logger log = LogManager.getLogger("loggers");
+    
+    FTPClient ftpClient;
 	
-	static String server = "10.35.0.152";
-    static int port = 21;
-    static String user = "ebaows_uat";
-    static String pass = "34>zd/U!NtGSRn?6";
-    
-    static String setSchedule = "D:\\worksite\\schedule.json"; 
-    
-    
-    static FTPClient ftpClient;
-	
-	public static  void ftp() throws JSONException, IOException {
+	public  void ftp(String setSchedule) throws JSONException, IOException {
 	
 		
 		JSONObject JSONObject = parseJSONFile(setSchedule);
@@ -49,10 +38,10 @@ public class SFTP implements Runnable{
 		
 		JSONObject data = parseJSONFile(fileSetting);
 		
-		user 	= data.getString("ftpuser");
-		pass 	= data.getString("ftppass");
-		port 	= data.getInt("ftpport");
-		server 	= data.getString("ftpserver");
+		String user 	= data.getString("ftpuser");
+		String pass 	= data.getString("ftppass");
+		int port 	= data.getInt("ftpport");
+		String server 	= data.getString("ftpserver");
 
 		JSONArray files = (JSONArray)data.get("pathFileFTP");
 
@@ -106,7 +95,7 @@ public class SFTP implements Runnable{
     }
 	
 
-	private static void printFileDetails(FTPFile[] files,String remotePath,String localPath) {
+	private  void printFileDetails(FTPFile[] files,String remotePath,String localPath) {
         ///DateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (FTPFile file : files) {
             //String details = file.getName();
@@ -160,29 +149,9 @@ public class SFTP implements Runnable{
 //	}
 	
 	
-	public static JSONObject parseJSONFile(String filename) throws JSONException, IOException {
+	public JSONObject parseJSONFile(String filename) throws JSONException, IOException {
         String content = new String(Files.readAllBytes(Paths.get(filename)),StandardCharsets.UTF_8);
         return new JSONObject(content);
-    }
-	
-
-	@Override
-    public void run() {
-		System.out.println();
-		System.out.println("Download File: "+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
-		try {
-			ftp();
-
-			JSONObject JSONObject = parseJSONFile(setSchedule);
-	    	String fileSetting =  JSONObject.getString("setFTP");
-			JSONObject data = parseJSONFile(fileSetting);
-			String setBat 	= data.getString("batch");
-			Runtime.getRuntime().exec("cmd /c start "+setBat);
-		} catch (JSONException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
     }
 
 }

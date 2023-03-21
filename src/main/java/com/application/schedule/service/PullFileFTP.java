@@ -8,9 +8,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.commons.net.ftp.FTP;
@@ -24,35 +21,32 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class PullFileFTP implements Runnable {
+public class PullFileFTP {
 	
 	private static Logger log = LogManager.getLogger("loggers");
 	
-	static String server = "10.35.0.152";
-    static int port = 21;
-    static String user = "ebaows_uat";
-    static String pass = "34>zd/U!NtGSRn?6";
     static FTPClient ftpClient;
     
-    static String setSchedule = "D:\\worksite\\schedule.json"; 
+    //static String setSchedule = "D:\\worksite\\schedule.json"; 
 
 	
-    public static  void ftp() throws JSONException, IOException {
+    public  void ftp(String setSchedule) throws JSONException, IOException {
     	
     	JSONObject JSONObject = parseJSONFile(setSchedule);
     	String fileSetting =  JSONObject.getString("setFTP");
 		
 		JSONObject data = parseJSONFile(fileSetting);
 		
-		user 	= data.getString("ftpuser");
-		pass 	= data.getString("ftppass");
-		port 	= data.getInt("ftpport");
-		server 	= data.getString("ftpserver");
+		String user 	= data.getString("ftpuser");
+		String pass 	= data.getString("ftppass");
+		int port 	= data.getInt("ftpport");
+		String server 	= data.getString("ftpserver");
 		
 		JSONArray ifiles = (JSONArray)data.get("pathFileFTP");
 
 		 
 	   ftpClient = new FTPClient();
+	   
         try {
 
         	ftpClient.connect(server, port);
@@ -154,12 +148,12 @@ public class PullFileFTP implements Runnable {
     }
     
 	
-    public static JSONObject parseJSONFile(String filename) throws JSONException, IOException {
+    public JSONObject parseJSONFile(String filename) throws JSONException, IOException {
         String content = new String(Files.readAllBytes(Paths.get(filename)),StandardCharsets.UTF_8);
         return new JSONObject(content);
     }
 	
-    public static Optional<String> getExtensionByStringHandling(String filename) {
+    public Optional<String> getExtensionByStringHandling(String filename) {
 	    return Optional.ofNullable(filename)
 	      .filter(f -> f.contains("."))
 	      .map(f -> f.substring(filename.lastIndexOf(".") + 1));
@@ -174,15 +168,5 @@ public class PullFileFTP implements Runnable {
         return true;
     }
     
-	@Override
-    public void run() {
-		System.out.println("Upload File: "+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
-		try {
-			ftp();
-		} catch (JSONException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-    }
+	
 }
