@@ -11,14 +11,13 @@ import com.application.schedule.controller.ScheduleController;
 
 @SpringBootApplication
 public class ScheduleApplication  {
-	
-	
-	
+
 	public static void main(String[] args)  {
+		
 		//SpringApplication.run(ScheduleApplication.class, args);
+		
 		SpringApplication app = new SpringApplication(ScheduleApplication.class);
 		app.setBanner(null);
-		
 		System.out.println();
 		System.out.println("----------------------------------------------------");
 		System.out.println("       START PROGRAM SFTP MOTOR POLICY ");

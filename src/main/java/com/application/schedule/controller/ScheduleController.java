@@ -61,12 +61,18 @@ public class ScheduleController {
 				
 				SFTP loadftp  = new SFTP();
 				loadftp.ftp(setSchedule);
+				
+				Thread.sleep(9000);
+				
 				JSONObject JSONObject = parseJSONFile(setSchedule);
 		    	String fileSetting =  JSONObject.getString("setFTP");
 				JSONObject data = parseJSONFile(fileSetting);
 				String setBat 	= data.getString("batch");
 				Runtime.getRuntime().exec("cmd /c start "+setBat);
 			} catch (JSONException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
