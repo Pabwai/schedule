@@ -65,10 +65,8 @@ public class ScheduleController {
 				Thread.sleep(9000);
 				
 				JSONObject JSONObject = parseJSONFile(setSchedule);
-		    	String fileSetting =  JSONObject.getString("setFTP");
-				JSONObject data = parseJSONFile(fileSetting);
-				String setBat 	= data.getString("batch");
-				Runtime.getRuntime().exec("cmd /c start "+setBat);
+		    	String batch =  JSONObject.getString("batch");
+				Runtime.getRuntime().exec("cmd /c start "+batch);
 			} catch (JSONException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
