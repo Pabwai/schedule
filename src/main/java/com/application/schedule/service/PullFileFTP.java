@@ -106,7 +106,7 @@ public class PullFileFTP {
     		                
     		                if (success) {
                                 System.out.println(fileItem.getName() + " uploaded success");
-                                fileItem.deleteOnExit();
+                                fileItem.delete();
                             }else {
                             	System.out.println(fileItem.getName() + " uploaded false");
                             }
