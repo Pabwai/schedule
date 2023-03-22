@@ -120,6 +120,7 @@ public class SFTP {
                 boolean success = ftpClient.completePendingCommand();
                 if (success) {
                     System.out.println(file.getName() +" downloaded success");
+                    ftpClient.deleteFile(remotePath+"/"+file.getName());
                 }
                 outputStream.close();
                 inputStream.close();

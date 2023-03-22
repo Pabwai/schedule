@@ -20,7 +20,7 @@ public class ScheduleApplication  {
 		app.setBanner(null);
 		System.out.println();
 		System.out.println("----------------------------------------------------");
-		System.out.println("       START PROGRAM SFTP MOTOR POLICY ");
+		System.out.println("          START PROGRAM SFTP WORKSITE ");
 		System.out.println("----------------------------------------------------");
 		
 		try {
