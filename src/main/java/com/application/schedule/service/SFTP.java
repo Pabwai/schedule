@@ -32,15 +32,12 @@ public class SFTP {
 	public  void ftp(String setSchedule) throws JSONException, IOException {
 	
 		
-		JSONObject JSONObject = parseJSONFile(setSchedule);
-		
-    	String fileSetting =  JSONObject.getString("setFTP");
-		
-		JSONObject data = parseJSONFile(fileSetting);
+		JSONObject data = parseJSONFile(setSchedule);
+
 		
 		String user 	= data.getString("ftpuser");
 		String pass 	= data.getString("ftppass");
-		int port 	= data.getInt("ftpport");
+		int port 		= data.getInt("ftpport");
 		String server 	= data.getString("ftpserver");
 
 		JSONArray files = (JSONArray)data.get("pathFileFTP");
