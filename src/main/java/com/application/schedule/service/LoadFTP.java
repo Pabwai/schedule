@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class SFTP {
+public class LoadFTP {
 	
 	private static Logger log = LogManager.getLogger("loggers");
     

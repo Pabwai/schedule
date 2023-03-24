@@ -1,0 +1,107 @@
+package com.application.schedule.service;
+
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import java.util.Vector;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.stereotype.Component;
+
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
+
+@Component
+public class LoadSFTP {
+	
+	private static Logger log = LogManager.getLogger("loggers");
+
+	
+	public void ftp(String setSchedules) throws JSchException, SftpException, JSONException, IOException {
+
+		JSONObject data = parseJSONFile(setSchedules);
+
+		String user 	= data.getString("ftpuser");
+		String pass 	= data.getString("ftppass");
+		int port 		= data.getInt("ftpport");
+		String server 	= data.getString("ftpserver");
+		
+		Session session = setupJsch( user,  pass,  port, server);
+		
+		Channel channel = session.openChannel("sftp");
+        channel.connect();
+        ChannelSftp channelSftp = (ChannelSftp) channel;
+		
+		
+		JSONArray files = (JSONArray)data.get("pathFileFTP");
+		
+		for (int i = 0; i < files.length(); i++) {
+        	
+        	JSONObject pathFile = new JSONObject();
+        	pathFile = (JSONObject)files.get(i);
+        	String remoteFile = pathFile.getString("remoteFile");
+        	String localFile  = pathFile.getString("localFile");
+
+            File theDir = new File(localFile+remoteFile);
+    		if (!theDir.exists()){
+    		    theDir.mkdirs();
+    		}
+    		channelSftp.cd(remoteFile);
+    		Vector<ChannelSftp.LsEntry> list = channelSftp.ls("*.*");
+    		for(ChannelSftp.LsEntry entry:list) {
+                
+    		    byte[] buffer = new byte[1024];
+    		    BufferedInputStream bis = new BufferedInputStream(channelSftp.get(entry.getFilename()));
+    		    OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(localFile+remoteFile+"\\"+entry.getFilename()));
+    		    int readCount;
+    		    while( (readCount = bis.read(buffer)) > 0) {
+    		    	outputStream.write(buffer, 0, readCount);
+    		    }
+    		    bis.close();
+    		    outputStream.close();
+    		    channelSftp.rm(entry.getFilename());
+    		    System.out.println(entry.getFilename()+" downloaded success");
+    		}
+
+        }
+
+		channelSftp.exit();
+	}
+	
+	
+    
+	private static Session setupJsch(String user, String pass, int port, String server) throws JSONException, IOException, JSchException {
+		
+		JSch jsch = new JSch();
+		Session jschSession = jsch.getSession(user, server,port);
+		jschSession.setPassword(pass);
+
+		java.util.Properties config = new java.util.Properties();
+        config.put("StrictHostKeyChecking", "no");
+        jschSession.setConfig(config);
+		jschSession.connect();
+		return jschSession;
+	}
+	
+	public static JSONObject parseJSONFile(String filename) throws JSONException, IOException {
+        String content = new String(Files.readAllBytes(Paths.get(filename)),StandardCharsets.UTF_8);
+        return new JSONObject(content);
+    }
+
+}

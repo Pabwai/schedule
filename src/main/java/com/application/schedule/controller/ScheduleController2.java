@@ -20,10 +20,14 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 
 import com.application.schedule.service.PullFTP;
+import com.application.schedule.service.PullSFTP;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
 import com.application.schedule.service.LoadFTP;
+import com.application.schedule.service.LoadSFTP;
 
 @Controller
-public class ScheduleController {
+public class ScheduleController2 {
 
 	static String setSchedule = "D:\\worksite\\schedule.json"; 
 	
@@ -59,7 +63,7 @@ public class ScheduleController {
 			System.out.println("Download File: "+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
 			try {
 				
-				LoadFTP loadftp  = new LoadFTP();
+				LoadSFTP loadftp  = new LoadSFTP();
 				loadftp.ftp(setSchedule);
 				
 				Thread.sleep(9000);
@@ -71,6 +75,12 @@ public class ScheduleController {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSchException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SftpException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -86,10 +96,19 @@ public class ScheduleController {
 	    public void run() {
 	    	System.out.println("Upload File: "+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
 	    	
-	    	PullFTP upLoad = new PullFTP();
+	    	PullSFTP upLoad = new PullSFTP();
 	    	try {
 				upLoad.ftp(setSchedule);
 			} catch (JSONException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSchException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SftpException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
