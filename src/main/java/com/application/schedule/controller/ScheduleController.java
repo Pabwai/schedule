@@ -25,11 +25,15 @@ import com.application.schedule.service.LoadFTP;
 @Controller
 public class ScheduleController {
 
-	static String setSchedule = "D:\\worksite\\schedule.json"; 
+   static String setSchedule; 
 	
-	public static void setSchedule() throws JSONException, IOException {	
+	public static void setSchedule(String seting) throws JSONException, IOException {	
 		
-		JSONObject setTime = parseJSONFile(setSchedule);
+		setSchedule = seting;
+		
+		
+		
+		JSONObject setTime = parseJSONFile(seting);
 		
 		if(setTime.has("getHour") &&
 				setTime.has("getMinut") &&
@@ -65,8 +69,10 @@ public class ScheduleController {
 				Thread.sleep(9000);
 				
 				JSONObject JSONObject = parseJSONFile(setSchedule);
-		    	String batch =  JSONObject.getString("batch");
-				Runtime.getRuntime().exec("cmd /c start "+batch);
+				if(JSONObject.has("batch")) {
+					String batch =  JSONObject.getString("batch");
+					Runtime.getRuntime().exec("cmd /c start "+batch);
+				}
 			} catch (JSONException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

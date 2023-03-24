@@ -44,13 +44,13 @@ public class LoadSFTP {
 		
 		Session session = setupJsch( user,  pass,  port, server);
 		
+		
 		Channel channel = session.openChannel("sftp");
         channel.connect();
         ChannelSftp channelSftp = (ChannelSftp) channel;
 		
-		
 		JSONArray files = (JSONArray)data.get("pathFileFTP");
-		
+
 		for (int i = 0; i < files.length(); i++) {
         	
         	JSONObject pathFile = new JSONObject();
@@ -62,26 +62,21 @@ public class LoadSFTP {
     		if (!theDir.exists()){
     		    theDir.mkdirs();
     		}
-    		channelSftp.cd(remoteFile);
-    		Vector<ChannelSftp.LsEntry> list = channelSftp.ls("*.*");
-    		for(ChannelSftp.LsEntry entry:list) {
-                
-    		    byte[] buffer = new byte[1024];
-    		    BufferedInputStream bis = new BufferedInputStream(channelSftp.get(entry.getFilename()));
-    		    OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(localFile+remoteFile+"\\"+entry.getFilename()));
-    		    int readCount;
-    		    while( (readCount = bis.read(buffer)) > 0) {
-    		    	outputStream.write(buffer, 0, readCount);
-    		    }
-    		    bis.close();
-    		    outputStream.close();
-    		    channelSftp.rm(entry.getFilename());
-    		    System.out.println(entry.getFilename()+" downloaded success");
-    		}
+    		
+    		try {
+    			
+				listFilesRecursively(channelSftp,remoteFile,localFile+remoteFile);
+    			//listFilesRecursively2(channelSftp,remoteFile);	
+    			
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
         }
-
-		channelSftp.exit();
+		channelSftp.disconnect();
+		channel.disconnect();
+		session.disconnect();
 	}
 	
 	
@@ -98,6 +93,53 @@ public class LoadSFTP {
 		jschSession.connect();
 		return jschSession;
 	}
+	
+	
+	private static void listFilesRecursively2(ChannelSftp sftpChannel, String path) throws Exception {
+        Vector<ChannelSftp.LsEntry> entries = sftpChannel.ls(path);
+
+        for (ChannelSftp.LsEntry entry : entries) {
+            String entryName = entry.getFilename();
+
+            if (".".equals(entryName) || "..".equals(entryName)) {
+                continue;
+            }
+
+            String fullPath = path + "/" + entryName;
+            if (entry.getAttrs().isDir()) {
+                System.out.println("Directory: " + fullPath);
+                //listFilesRecursively2(sftpChannel, fullPath);
+            } else {
+                System.out.println("File: " + fullPath);
+            }
+        }
+    }
+	
+	private static void listFilesRecursively(ChannelSftp channelSftp, String pathRemote,String pathLocal) throws Exception {
+
+     	Vector<ChannelSftp.LsEntry> list = channelSftp.ls(pathRemote);
+		for(ChannelSftp.LsEntry entry:list) {
+			String entryName = entry.getFilename();
+			if (entry.getAttrs().isDir()) {
+                continue;
+            }
+			String fullPath = pathRemote + "/" + entryName;
+			
+		    byte[] buffer = new byte[1024];
+		    BufferedInputStream bis = new BufferedInputStream(channelSftp.get(fullPath));
+		    OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(pathLocal+"\\"+entryName));
+		    int readCount;
+		    while( (readCount = bis.read(buffer)) > 0) {
+		    	outputStream.write(buffer, 0, readCount);
+		    }
+		    bis.close();
+		    outputStream.close();
+		    //channelSftp.rm(entry.getFilename());
+		    System.out.println(entry.getFilename()+" downloaded success");
+		}
+		list.clear();
+    }
+	
 	
 	public static JSONObject parseJSONFile(String filename) throws JSONException, IOException {
         String content = new String(Files.readAllBytes(Paths.get(filename)),StandardCharsets.UTF_8);

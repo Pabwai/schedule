@@ -1,10 +1,7 @@
 package com.application.schedule.service;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,11 +40,11 @@ public class PullSFTP {
 		
 		Channel channel = session.openChannel("sftp");
         channel.connect();
-        ChannelSftp channelSftp = (ChannelSftp) channel;
+        
 		
 		
 		JSONArray files = (JSONArray)data.get("pathFileFTP");
-		
+		ChannelSftp channelSftp = (ChannelSftp) channel;
 		for (int i = 0; i < files.length(); i++) {
         	
         	JSONObject pathFile = new JSONObject();
@@ -82,30 +78,25 @@ public class PullSFTP {
 						}
 					}
 					
-					channelSftp.cd(remoteFile);
-					remoteFile = remoteFile+"/"+fileItem.getName();
-					InputStream inputStream = new FileInputStream(fileItem.getAbsolutePath());
-					OutputStream outputStream = channelSftp.put(remoteFile);
-					byte[] bytesIn = new byte[4096];
-	                int bytesRead = -1;
-	                while ((bytesRead = inputStream.read(bytesIn)) != -1) {
-	                    outputStream.write(bytesIn, 0, bytesRead);
-	                }
-	                outputStream.close();
-	                inputStream.close();
-	                
-	                System.out.println(fileItem.getName() + " uploaded success");
-                    fileItem.delete();
-                    Thread.sleep(1000);
-            		
+					try {
+						
+						listFilesRecursively(channelSftp,remoteFile,fileItem);
+						
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
             	}
         	}
         	
     		
 
         }
-
 		channelSftp.exit();
+		session.disconnect();
+		
+		
 	}
 	
 	
@@ -122,6 +113,27 @@ public class PullSFTP {
 		jschSession.connect();
 		return jschSession;
 	}
+	
+	
+	private static void listFilesRecursively(ChannelSftp channelSftp, String remoteFile,File fileItem) throws Exception {
+
+		remoteFile = remoteFile+"/"+fileItem.getName();
+		InputStream inputStream = new FileInputStream(fileItem.getAbsolutePath());
+		OutputStream outputStream = channelSftp.put(remoteFile);
+		byte[] bytesIn = new byte[4096];
+        int bytesRead = -1;
+        
+        while ((bytesRead = inputStream.read(bytesIn)) != -1) {
+            outputStream.write(bytesIn, 0, bytesRead);
+        }
+        
+        outputStream.close();
+        inputStream.close();
+        
+        System.out.println(fileItem.getName() + " uploaded success");
+        fileItem.delete();
+        Thread.sleep(1000);
+    }
 	
 	public static JSONObject parseJSONFile(String filename) throws JSONException, IOException {
         String content = new String(Files.readAllBytes(Paths.get(filename)),StandardCharsets.UTF_8);

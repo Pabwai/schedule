@@ -19,21 +19,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 
-import com.application.schedule.service.PullFTP;
 import com.application.schedule.service.PullSFTP;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import com.application.schedule.service.LoadFTP;
 import com.application.schedule.service.LoadSFTP;
 
 @Controller
 public class ScheduleController2 {
 
-	static String setSchedule = "D:\\worksite\\schedule.json"; 
+	static String setSchedule; 
 	
-	public static void setSchedule() throws JSONException, IOException {	
+	public static void setSchedule(String seting) throws JSONException, IOException {	
 		
-		JSONObject setTime = parseJSONFile(setSchedule);
+		setSchedule = seting;
+		JSONObject setTime = parseJSONFile(seting);
 		
 		if(setTime.has("getHour") &&
 				setTime.has("getMinut") &&
@@ -58,7 +57,6 @@ public class ScheduleController2 {
 	private static class Task1 implements Runnable {
 	    @Override
 	    public void run() {
-	      
 	      	System.out.println();
 			System.out.println("Download File: "+new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date()));
 			try {
@@ -69,8 +67,10 @@ public class ScheduleController2 {
 				Thread.sleep(9000);
 				
 				JSONObject JSONObject = parseJSONFile(setSchedule);
-		    	String batch =  JSONObject.getString("batch");
-				Runtime.getRuntime().exec("cmd /c start "+batch);
+				if(JSONObject.has("batch")) {
+					String batch =  JSONObject.getString("batch");
+					Runtime.getRuntime().exec("cmd /c start "+batch);
+				}
 			} catch (JSONException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
