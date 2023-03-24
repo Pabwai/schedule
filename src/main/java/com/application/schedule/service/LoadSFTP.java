@@ -134,7 +134,7 @@ public class LoadSFTP {
 		    }
 		    bis.close();
 		    outputStream.close();
-		    //channelSftp.rm(entry.getFilename());
+		    channelSftp.rm(fullPath);
 		    System.out.println(entry.getFilename()+" downloaded success");
 		}
 		list.clear();
